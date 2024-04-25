@@ -151,8 +151,11 @@ try{
         const userMenuExtras= SeleccionarExtra(listtypeExtra);
         if (userMenuExtras!="") {
             const menuextra= userMenuExtras.split(','); 
+            let precioextra=0;
             for (let i in menuextra){
-                userMenuPrecioExtras += parseFloat(ObtenerValor(extras,menuextra[i], 'precio').toString());
+                precioextra = ObtenerValor(extras,menuextra[i], 'precio');
+                userMenuPrecioExtras += (precioextra[0] =="null")? 0: parseFloat(precioextra);
+       
             }
         }
 
