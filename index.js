@@ -131,7 +131,9 @@ try{
     const userMenuType = SeleccionarMenu(listtypeMenu, comentarios, lodashRandom(comentarios.length-1)); 
     if (userMenuType != null) {
         //Obtener precio del menú seleccionado 
-        const userMenuPrecio = ObtenerValor(menus,userMenuType, 'precio')
+        let userMenuPrecio = ObtenerValor(menus,userMenuType, 'precio');
+        userMenuPrecio = (userMenuPrecio[0] =="null")? 0: parseFloat(userMenuPrecio);
+        
         //Mostrar todo el menú
         const platos1 = ObtenerValor(menus,userMenuType, 'plato1');
         const platos2 = ObtenerValor(menus,userMenuType, 'plato2');
@@ -155,7 +157,7 @@ try{
         }
 
         //Calcular total
-        const userMenuTotal= userMenuPrecioExtras +  ((userMenuPlato1=="" && userMenuPlato2=="" && userMenuPostre=="")? 0: parseFloat(userMenuPrecio));
+        const userMenuTotal= userMenuPrecioExtras +  ((userMenuPlato1=="" && userMenuPlato2=="" && userMenuPostre=="")? 0: userMenuPrecio);
 
         //Mostrar Resumen comanda y precios
         let text = `Estos son los platos del menú ${userMenuType} seleccionados:\nPlato 1 -> ${userMenuPlato1}\nPlato 2 ->${userMenuPlato2}\nPlato 3 ->${userMenuPostre}\nExtras ->${userMenuExtras}\n\nPRECIO Menú: ${userMenuPrecio} euros\nPRECIO Extras: ${userMenuPrecioExtras} euros\nTOTAL a pagar: ${userMenuTotal} euros`;
