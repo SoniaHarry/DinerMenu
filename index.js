@@ -25,8 +25,8 @@ const extras = [
 const comentarios = ['Buena elección!!','Uhmm... perfecta elección!!','Este menú esta de locos..'];
 
 function ObtenerLista (obj, campo){
-  /*Recorre un objeto y obtiene un array con todos los valores del campo pasado como argumento
-  **Devuelve: un array*/
+  /*Recorre un array de objetos en busca de todos los objetos con una propiedad 
+  **Devuelve: un array con los valores de esa propiedad*/
   const newlist=[];
   for (let element in obj){
     newlist.push(obj[element][campo]);
@@ -41,9 +41,9 @@ const listtypeMenu = ObtenerLista(menus, 'name');
 const listtypeExtra = ObtenerLista(extras, 'name');
 
 function ObtenerValor (listaobj, type, clave){
-/* Obtiene dependiendo del tipo de menú seleccionado <<type>> 
-** un array con el valor ó valores almacenados en la lista de objetos <<listaobj>>
-** cuya clave coincida con el parametro <<clave>>. P.e: devolverá algo así los platos1 ['x','y','z'] ó los platos2 ['xx','yy','zz']
+/* Obtiene dependiendo del tipo de item  seleccionado <<type>> 
+** un array con el valor ó valores almacenados en el array de objetos <<listaobj>>
+** cuya clave coincida con el parámetro <<clave>>. P.e: devolverá algo así los platos1 ['x','y','z'] ó los platos2 ['xx','yy','zz']
 */
     const keyname = _.keyBy(listaobj, 'name');  
     const text =  '' + keyname[type][clave];
