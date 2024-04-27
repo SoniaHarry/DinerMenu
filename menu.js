@@ -53,13 +53,13 @@ const extras = [
 
 const comentarios = ['Buena elección!!','Uhmm... perfecta elección!!','Este menú esta de locos..'];
 
-function ObtenerLista (obj, campo, type=null, plato=null){
+function ObtenerPropiedad (obj, campo, type=null, plato=null){
   /*Recorre un array de objetos en busca de todos los objetos con una propiedad 
   **Devuelve: un array con los valores de esa propiedad siempre y cuando tengan la propiedad type y plato pasada como parámetro*/
   const newlist=[];
   for (let element in obj){
-    if ((obj[element]['type']===type || type===null) && (obj[element]['plato']===plato || plato===null)){
-      newlist.push(obj[element][campo]);
+    if ((obj[element]['type'].toUpperCase()===type || type===null) && (obj[element]['plato'].toUpperCase()===plato || plato===null))     {
+      newlist.push(campo!="precio"? obj[element][campo].toUpperCase(): newlist.push(obj[element][campo]));
     }
   }
   //Eliminados elementos duplicados
@@ -67,19 +67,30 @@ function ObtenerLista (obj, campo, type=null, plato=null){
   return uniquenewlist;
 }
 
-//Obtener array con los extras que tenemos
-const listtypeExtra = ObtenerLista(extras, 'name');
 
-function ObtenerValor (listaobj, type, clave){
-/* Obtiene dependiendo del tipo de item  seleccionado <<type>> 
-** un array con el valor ó valores almacenados en el array de objetos <<listaobj>>
-** cuya clave coincida con el parámetro <<clave>>. P.e: devolverá algo así los platos1 ['x','y','z'] ó los platos2 ['xx','yy','zz']
-*/
-    const keyname = _.keyBy(listaobj, 'name');  
-    const text =  '' + keyname[type][clave];
-    const myArray = text.split(",");
-    return myArray;
+function ObtenerExtras (obj, campo){
+  /*Recorre un array de objetos en busca de todos los objetos con una propiedad 
+  **Devuelve: un array con los valores de esa propiedad*/
+  const newlist=[];
+  for (let element in obj){
+      newlist.push(obj[element][campo].toUpperCase());
+  }
+  return newlist;
 }
+
+
+function ObtenerPrecio (obj, name){
+  /*Recorre un array de objetos en busca del precio de un ingrediente concreto 
+  **Devuelve: el precio, sino encuentra devuelve 0*/
+  const newlist=[];
+  for (let element in obj){
+    if (obj[element]['name'].toUpperCase()===name) {
+      return obj[element]['precio'];
+    }
+  }
+  return 0;
+}
+
 
 function lodashRandom(numtop){
 /*Genera un número aleatorio entre 0 y numtop */
@@ -87,20 +98,31 @@ function lodashRandom(numtop){
 }
     
 
-function SeleccionarPlato(opciones, titulo, coste=0, platotype){
+function SeleccionarPlato(opciones, titulo, aMenuActive, platotype=""){
 /* Seleccionar el plato a degustar dependiendo del menú elegido . 
 ** Devuelve:
 **  string que corresponde al plato elegido
 **  "" en caso de cancelar el proceso
 */
+    //Mostrar las opciones con el precio
+    let newOpciones=[];
+    for (let i in opciones){
+      let precio = ObtenerPropiedad(aMenuActive, 'precio',platotype,opciones[i])[0];
+      newOpciones.push(`${opciones[i].toUpperCase()} (${precio})€`);
+    }
+   
     while (true){
-        let userPlato = prompt(`Ahora toca elegir plato ${titulo}, díganos que prefiere: ${opciones}. `, "");
-        if (opciones.includes(userPlato) && userPlato!="") {
-            return userPlato;
-        }
-        else if (userPlato === null){
+        let userPlato = prompt(`Ahora toca elegir plato ${titulo}, díganos que prefiere: ${newOpciones}. `, "");
+        opciones = opciones.map(function (e) { 
+            return e.toUpperCase()
+        });
+        
+        if (userPlato === null || userPlato==="") {
             alert (`Vaya...!! No quiere ningún plato como ${platotype}!!`);
             return "";
+        }  
+        else if (opciones.includes(userPlato.toUpperCase()) && userPlato!="") {
+            return userPlato.toUpperCase();
         }  
     }
 }
@@ -118,13 +140,16 @@ function SeleccionarExtra(listtypeExtra){
             //Comprobamos cuantos extras se han introducido y si estan en la lista de extras
             let aUserExtra = userExtraType.split(','); //Convertimos en array
             let bExiste = true;
+            listtypeExtra = listtypeExtra.map(function (e) { 
+                return e.toUpperCase()
+            });
             for (var i = 0; i < aUserExtra.length; i++) {
-                 if(listtypeExtra.includes(aUserExtra[i])===false){
+                 if(listtypeExtra.includes(aUserExtra[i].toUpperCase())===false){
                     bExiste=false;
                  }
             }
             if (bExiste && aUserExtra.length<=2 ) {
-                return userExtraType;
+                return userExtraType.toUpperCase();
             }
         }
         else if (userExtraType === null){
@@ -164,25 +189,22 @@ function SeleccionarExtra(listtypeExtra){
         case 9:
         case 10:
         case 11:
-          userMenuType = "Breakfast"
+          userMenuType = "BREAKFAST"
           aMenuActive = menuBreakfast;
           break;
         case 12:
         case 13:
         case 14:
         case 15:
-          userMenuType="Lunch"
+          userMenuType="LUNCH"
           aMenuActive = menuLunch;
           break;
         case 20:
         case 21:
         case 22:
         case 23:
-          userMenuType="Diner"
+          userMenuType="DINER"
           aMenuActive = menuDiner;
-          //pPrincipales = ObtenerLista(aMenuActive, 'plato','principal');
-          //pSecundarios = ObtenerLista(aMenuActive, 'plato','secundario');
-          //pPostres = ObtenerLista(aMenuActive, 'plato','postre');
           break;
         default:
           alert('Lo sentimos pero estamos cerrados!!');
@@ -193,19 +215,15 @@ function SeleccionarExtra(listtypeExtra){
     }
 
     if (userMenuType != "") {
-        //Obtener precio del menú seleccionado 
-        //let userMenuPrecio = ObtenerValor(menus,userMenuType, 'precio');
-        //userMenuPrecio = (userMenuPrecio[0] =="null")? 0: parseFloat(userMenuPrecio);
         
         /*Mostrar resumen del menú que se le ofrecerá según la hora
         ** - Obtener array con los tipos de menús que tenemos
         *  - Recorrer los tipos de menú para sacar los platos correspondientes
         */
-        const aTypeMenu = ObtenerLista(aMenuActive, 'type');//[Principal, Secundario, Postre]
-        let menuGretting="";
-        menuGretting =`Bienvenido/a el menú que le corresponde es:\n\nMENU: ${userMenuType}`;
+        const aTypeMenu = ObtenerPropiedad(aMenuActive, 'type');//[PRINCIPAL, SECUNDARIO, POSTRE]
+        let menuGretting =`Bienvenido/a el menú que le corresponde es:\n\nMENU: ${userMenuType}`;
         for (let typemenu in aTypeMenu){
-          menuGretting= menuGretting + `\n${aTypeMenu[typemenu]}: ${ObtenerLista(aMenuActive, 'plato',aTypeMenu[typemenu])}`; 
+          menuGretting= menuGretting + `\n${aTypeMenu[typemenu]}: ${ObtenerPropiedad(aMenuActive, 'plato',aTypeMenu[typemenu])}`; 
         }
         alert (menuGretting);
         
@@ -218,15 +236,16 @@ function SeleccionarExtra(listtypeExtra){
         let totalFactura=0;
         for (let typemenu in aTypeMenu){
           let platoseleccionado="";
-          platoseleccionado=SeleccionarPlato (ObtenerLista(aMenuActive, 'plato',aTypeMenu[typemenu]),aTypeMenu[typemenu], 0, aTypeMenu[typemenu]);
+          platoseleccionado=SeleccionarPlato (ObtenerPropiedad(aMenuActive, 'plato',aTypeMenu[typemenu]),aTypeMenu[typemenu], aMenuActive, aTypeMenu[typemenu]);
           if (platoseleccionado!="") {
-            //Añadir platos seleccionado al array de userPlatosSelec
-            let precio=ObtenerLista(aMenuActive, 'precio',aTypeMenu[typemenu],platoseleccionado)[0];
+            //Añadir platos seleccionado junto con su precios al array de userPlatosSelec
+            let precio=ObtenerPropiedad(aMenuActive, 'precio',aTypeMenu[typemenu],platoseleccionado)[0];
+            
             let userPlatosSelec= {
               'name': userMenuType,
               'type': aTypeMenu[typemenu] ,
               'plato': platoseleccionado, 
-              'precio':precio
+              'precio': precio
             }
             userMenu.push(userPlatosSelec); //Añadir el plato
             //Añadimos el precio al total de la factura
@@ -240,14 +259,28 @@ function SeleccionarExtra(listtypeExtra){
         let textExtra = `¿Desea añadir algún extra?`;
         if (confirm(textExtra) === true) 
         {
+          //Obtener array con los extras que tenemos
+          const listtypeExtra = ObtenerExtras(extras, 'name');
+          
           //Ofrecer plato extra máximo dos y obtener sus precios
           userMenuExtras= SeleccionarExtra(listtypeExtra);
+          
           if (userMenuExtras!="") {
               const menuextra= userMenuExtras.split(','); 
-              let precioextra=0;
+              let userMenuExtra=[];
               for (let i in menuextra){
-                  precioextra = ObtenerValor(extras,menuextra[i], 'precio');
-                  userMenuPrecioExtras += (precioextra[0] =="null")? 0: parseFloat(precioextra);
+                
+                //Añadir extrasjunto con su precios al array de userExtraSelec
+                let precioextra = ObtenerPrecio(extras, menuextra[i]);
+
+                let userExtraSelec= {
+                  'name': menuextra[i],
+                  'precio': precioextra
+                }
+                userMenuExtra.push(userExtraSelec); //Añadir el plato
+
+                
+                userMenuPrecioExtras += precioextra;
               }
           }
         }
@@ -259,13 +292,13 @@ function SeleccionarExtra(listtypeExtra){
         let setlineasFactura=(userMenu)=>{
           let linea="";
           for (let i in userMenu){
-            linea = linea +  `${userMenu[i]["type"]}:${userMenu[i]["plato"]} --> ${userMenu[i]["precio"]}€\n`; 
+            linea = linea +  `${userMenu[i]["type"]}: ${userMenu[i]["plato"]} --> ${userMenu[i]["precio"]}€\n`; 
           }
           return linea;
         }
  
         
-       let textFactura = `Estos son los platos del menú ${userMenuType} seleccionados:\n${setlineasFactura(userMenu)}\nExtras: ${userMenuExtras} --> ${userMenuPrecioExtras}€\n\nTOTAL: ${userMenuTotal.toFixed(2)}€`;
+       let textFactura = `Estos son los platos del menú ${userMenuType.toUpperCase()} seleccionados:\n${setlineasFactura(userMenu)}\nExtras: ${userMenuExtras.toUpperCase()} --> ${userMenuPrecioExtras}€\n\nTOTAL: ${userMenuTotal.toFixed(2)}€`;
       
         if (confirm(textFactura) === true) 
         {
