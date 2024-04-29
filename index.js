@@ -49,7 +49,7 @@ const extras = [
     {'name':'Aceitunas',  'precio': 1.0}
 ]
 
-const comentarios = ['Buena elección!!','Uhmm... perfecta elección!!','Este menú esta de locos..'];
+const comentarios = ['Buena elección!!','Uhmm... perfecta elección!!','Esto esta de locos..'];
 
 function ObtenerPropiedad (obj, campo, type=null, plato=null){
 /*Recorre un array de objetos en busca de todos los objetos con una propiedad <<campo>>
@@ -106,7 +106,7 @@ function SeleccionarPlato(opciones, titulo, aMenuActive, platotype=""){
     let newOpciones=[];
     for (let i in opciones){
         let precio = ObtenerPropiedad(aMenuActive, 'precio',platotype,opciones[i])[0];
-        newOpciones.push(`${opciones[i].toUpperCase()} (${precio!=null? precio : 0}€)`);
+        newOpciones.push(`\n${opciones[i].toUpperCase()} (${precio!=null? precio : 0}€)`);
     }
    
     while (true){
@@ -141,7 +141,7 @@ function SeleccionarExtra(listtypeExtra){
     let newOpciones=[];
     for (let i in listtypeExtra){
         let precio = ObtenerPrecio(extras, listtypeExtra[i]);
-        newOpciones.push(`${listtypeExtra[i].toUpperCase()} (${precio}€)`);
+        newOpciones.push(`\n${listtypeExtra[i].toUpperCase()} (${precio}€)`);
     }
   
     while (true){
@@ -225,18 +225,24 @@ try{
 
     if (userMenuType != "") {
         //**Mostrar resumen del menú que se le ofrecerá según la hora
-        let menuGretting =`Bienvenido/a!! el menú que le corresponde es el MENU ${userMenuType}\n`;  
+        let menuGretting =`Bienvenido/a!! el menú que le corresponde es el MENU ${userMenuType}`;  
         //Obtener array con los tipos de menús que tenemos
         const aTypeMenu = ObtenerPropiedad(aMenuActive, 'type');//[PRINCIPAL, SECUNDARIO, POSTRE]
         //Recorrer los tipos de menú para sacar los platos correspondientes y mostrarlos en el resumen
+        
         for (let typemenu in aTypeMenu){
-            menuGretting= menuGretting + `\n${aTypeMenu[typemenu]}: ${ObtenerPropiedad(aMenuActive, 'plato',aTypeMenu[typemenu])}`; 
+            let platos=ObtenerPropiedad(aMenuActive, 'plato',aTypeMenu[typemenu]);
+            let numplatos=0;
+            let listaplato="";
+            for (numplatos=0; numplatos<=platos.length-1; numplatos++) {
+              listaplato = listaplato + platos[numplatos] + ' - ';
+            }
+           // menuGretting= menuGretting + `\n${aTypeMenu[typemenu]}\n${"¯".repeat(aTypeMenu[typemenu].length)}\n${listaplato.trim().substring(0,listaplato.trim().length - 1)}\n`; 
+         menuGretting= menuGretting + `\n${aTypeMenu[typemenu]}:\n${listaplato.trim().substring(0,listaplato.trim().length - 1)}\n`; 
+        
         }
         alert (menuGretting);
         
-        //**Mostrar comentario aleatorio camarera
-        let comentarioRnd = comentarios[lodashRandom(comentarios.length-1)];
-        alert (comentarioRnd);  
     
         //**Obtener los platos a degustar 
         let userMenu=[];
@@ -245,6 +251,10 @@ try{
             let platoseleccionado="";
             platoseleccionado=SeleccionarPlato (ObtenerPropiedad(aMenuActive, 'plato',aTypeMenu[typemenu]),aTypeMenu[typemenu], aMenuActive, aTypeMenu[typemenu]);
             if (platoseleccionado!="") {
+                //**Mostrar comentario aleatorio camarera
+                let comentarioRnd = comentarios[lodashRandom(comentarios.length-1)];
+                alert (comentarioRnd);  
+              
                 //Añadir platos seleccionado junto con su precios al array de userPlatoSelec
                 let precio=ObtenerPropiedad(aMenuActive, 'precio',aTypeMenu[typemenu],platoseleccionado)[0];
                 precio = precio!=null? precio : 0; 
@@ -276,6 +286,10 @@ try{
             userMenuExtras= SeleccionarExtra(listtypeExtra);
             
             if (userMenuExtras!="") {
+                //**Mostrar comentario aleatorio camarera
+                let comentarioRnd = comentarios[lodashRandom(comentarios.length-1)];
+                alert (comentarioRnd);  
+              
                 const menuextra= userMenuExtras.split(','); 
                 //let userMenuExtra=[];
                 for (let i in menuextra){
